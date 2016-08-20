@@ -4,3 +4,5 @@ cabal.sandbox.config
 dist-newstyle/
 dist/
 test.tix
+src/highlight.js
+src/style.css
