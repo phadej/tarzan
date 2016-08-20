@@ -1,0 +1,48 @@
+name:                tarzan
+version:             0.0.1
+synopsis:            Everybody stand back. I know regular expressions.
+description:
+  A library to work with regular expressions.
+  .
+  Regular expression as in introductionary computer science courses.
+license:             BSD3
+license-file:        LICENSE
+author:              Oleg Grenrus
+maintainer:          oleg.grenrus@iki.fi
+copyright:           Copyright (c) 2014-2016 Oleg Grenrus
+category:            Text
+build-type:          Simple
+cabal-version:       >=1.10
+
+library
+  default-language:    Haskell2010
+  hs-source-dirs:      src
+  ghc-options:         -Wall
+  other-extensions:    GADTs
+  exposed-modules:     Tarzan
+  build-depends:       base            >=4.6    && <4.10,
+                       base-compat     >=0.9    && <0.10,
+                       containers      >=0.5    && <0.6,
+                       lattices        >=1.5    && <1.6,
+                       transformers    >=0.4    && <0.6,
+                       range-set-list  >=0.1.2  && <0.2,
+                       parsec          >=3.1    && <3.2
+  if !impl(ghc >= 8.0)
+    build-depends:     semigroups      >=0.18.1 && <0.19
+
+test-suite test
+  default-language:    Haskell2010
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      tests
+  main-is:             Tests.hs
+  ghc-options:         -Wall -fno-warn-orphans
+  build-depends:       base,
+                       base-compat,
+                       containers,
+                       lattices,
+                       tarzan,
+                       tasty             >=0.8 && <0.12,
+                       tasty-quickcheck  >=0.8 && <0.9,
+                       QuickCheck        >=2.8 && <2.10
+  if !impl(ghc >= 8.0)
+    build-depends:     semigroups      >=0.18.1 && <0.19
