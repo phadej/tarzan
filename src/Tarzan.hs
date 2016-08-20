@@ -354,7 +354,7 @@ prettyRe r | r == nothing   = "[]"
 prettyRe r | r == anything  = "[^]*"
 prettyRe (REChars cs)       = prettyRSetChar cs
 prettyRe (REAppend rs)      = concatMap prettyRe rs
-prettyRe (REUnion rs)       = "(?:" ++ intercalate "|" rs' ++ ")" ++ opt
+prettyRe (REUnion rs)       = "(" ++ intercalate "|" rs' ++ ")" ++ opt
   where
     rs' = map prettyRe $ Set.toList $ Set.delete eps rs
     opt | eps `Set.member` rs = "?"

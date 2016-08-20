@@ -1,21 +1,31 @@
-import Data.Semigroup ((<>))
+import Algebra.Lattice    ((\/))
+import Data.Either.Compat (isRight)
+import Data.Semigroup     ((<>))
 import Prelude ()
 import Prelude.Compat
-import Algebra.Lattice ((\/))
--- import Data.Either.Compat    (isRight)
 
+import Test.QuickCheck
 import Test.Tasty
 import Test.Tasty.QuickCheck (testProperty)
-import Test.QuickCheck
 
-import           Tarzan (RE)
-import qualified Tarzan as RE
+import           Tarzan       (RE)
+import qualified Tarzan       as RE
+import qualified Tarzan.Parse as RE
 
 main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Tests" [qcProps]
+
+qcProps :: TestTree
+qcProps = testGroup "QuickCheck properties"
+    [ testProperty "generates valids" $ RE.valid . getRC
+    , testProperty "pretty . parse  succeeds"         parsePrettied
+    , testProperty "pretty . parse 'involutive"       parsePrettyInvoluvitive
+    , testProperty "pretty . parse equivalent to id"  parsePrettyEquivalent
+    , kleeneProps
+    ]
 
 newtype RC = RC { getRC :: RE Char }
 
@@ -47,20 +57,18 @@ infix 4 `eq`
 eq :: RE Char -> RE Char -> Property
 eq x y  = counterexample (RE.prettyRe x ++ " `ne` " ++ RE.prettyRe y) (x `RE.eq` y)
 
-{-
 parsePrettied :: RC -> Property
 parsePrettied (RC re) = property $ isRight $ RE.parseRe (RE.prettyRe re)
 
 parsePrettyInvoluvitive :: RC -> Property
 parsePrettyInvoluvitive (RC re) =
-  let (Right re') = RE.parseRe (RE.prettyRe re)
-   in Right re' === RE.parseRe (RE.prettyRe re')
+    let (Right re') = RE.parseRe (RE.prettyRe re)
+    in Right re' === RE.parseRe (RE.prettyRe re')
 
 parsePrettyEquivalent :: RC -> Property
 parsePrettyEquivalent (RC re) =
-  let (Right re') = RE.parseRe (RE.prettyRe re)
-  in re' `eq` re
--}
+    let (Right re') = RE.parseRe (RE.prettyRe re)
+    in re' `eq` re
 
 appendAssoc :: RC -> RC -> RC -> Property
 appendAssoc (RC a) (RC b) (RC c) = a <> (b <> c) `eq` (a <> b) <> c
@@ -114,13 +122,3 @@ kleeneProps = testGroup "Kleene algebra laws"
   , testProperty "union idempotent"       unionIdemp
   ]
 
-qcProps :: TestTree
-qcProps = testGroup "QuickCheck properties"
-  [ testProperty "generates valids" $ RE.valid . getRC
-  {-
-  , testProperty "pretty . parse  succeeds"         parsePrettied
-  , testProperty "pretty . parse 'involutive"       parsePrettyInvoluvitive
-  , testProperty "pretty . parse equivalent to id"  parsePrettyEquivalent
-  -}
-  , kleeneProps
-  ]
